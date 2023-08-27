@@ -1,0 +1,82 @@
+---
+title: "capstone1_r"
+output: html_document
+date: "2023-08-20"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Capstone I Project Workpage
+
+```{r}
+# getwd()
+EVdata <- read.csv("C:/Users/jorda/Desktop/Coding_Temple_Work/capstone_1/Electric_Vehicle_Population_Data.csv")
+View(EVdata)
+```
+
+Average MSRP
+
+```{r}
+ev_msrp <- EVdata %>% select('Model.Year','Make','Model','Base.MSRP')
+# View(ev_msrp)
+
+ev_notnull_msrp <- ev_msrp %>% filter_all(all_vars(.!=0))
+# view(ev_notnull_msrp)
+
+mean(ev_notnull_msrp$Base.MSRP)
+```
+
+```{r}
+ggplot(data = ev_notnull_msrp) +
+  geom_point(mapping = aes(x = Make,y = Base.MSRP, color = Make))
+```
+
+Is the data skewed by the price of Porsche's?
+
+```{r}
+no_porsche_data <- ev_notnull_msrp %>% select("Make","Base.MSRP")
+
+no_porsche_msrp <- no_porsche_data[!grepl("PORSCHE",no_porsche_data$Make),]
+mean(no_porsche_msrp$Base.MSRP)
+```
+
+```{r}
+ggplot(data = no_porsche_msrp) +
+  geom_point(mapping = aes(x = Make,y = Base.MSRP, color = Make))
+```
+
+Is the data skewed by the amount of Tesla's?
+
+```{r}
+ave_msrp <- ev_notnull_msrp %>% select('Make','Base.MSRP')
+mean(ave_msrp$Base.MSRP)
+
+ave_msrp_noTes <- ave_msrp %>% filter_all(all_vars(.!='TESLA'))
+mean(ave_msrp_noTes$Base.MSRP)
+```
+
+Are most people driving EVs with an average MSRP or paying for EVs with a higher MSRP?
+
+```{r}
+sort_ave_msrp <- ave_msrp[order(ave_msrp$Base.MSRP),]
+
+msrp_plot <- ggplot(data = sort_ave_msrp) +
+ geom_bar(aes(x = Make, fill = Make))
+msrp_plot +
+  scale_x_discrete(limits = c("TESLA","KIA","BMW","VOLVO","MINI","CHRYSLER","SUBARU","PORSCHE","CADILLAC","FISKER","WHEEGO ELECTRIC CARS"))
+```
+
+```{r}
+count(ave_msrp_noTes)
+
+count(ave_msrp)
+```
+
+Is MSRP going down the longer and more EVs are on the market? ie: are EVs cheaper now than they were five years ago?
+
+```{r}
+ggplot(data = ev_notnull_msrp) +
+  geom_point(aes(x = Model.Year,y = Base.MSRP, color = Make))
+```
